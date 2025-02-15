@@ -15,9 +15,7 @@ openai_api_key = os.getenv("OPEN_AI")
 def generate_image(user_description,api_key):
     
     
-    prompt=f"You are a professional comic artist. 
-        Based on the below user's description and content, 
-        create a proper story comic: {user_description}"
+    prompt = f"You are a professional comic artist. Based on the below user's description and content, create a proper story comic: {user_description}"
 
     inference_params = dict(quality="standard",size="1024x1024")
     model_prediction=Model(
@@ -33,10 +31,7 @@ def generate_image(user_description,api_key):
 
 
 def understand_image(base64_image,api_key):
-    prompt = f"Analyze the content of this image and write a creative,
-                engaging story that brings the scene to life.
-                Describe the characters, setting, 
-                and actions in a way that would captivate a young audience:"
+    prompt = f"Analyze the content of this image and write a creative,engaging story that brings the scene to life.Describe the characters, setting, and actions in a way that would captivate a young audience:"
     inferenece_params = dict(temperature=0.2,image_base64=base64_image,api_key=api_key)
     model_prediction=Model(
               "https://clarifai.com/openai/chat-completion/models/gpt-4-vision"
@@ -46,9 +41,9 @@ def understand_image(base64_image,api_key):
     
     return model_prediction.outputs[0].data.text.raw
   
-    def encode_image(image_path):
-        with open(image_path,"rb") as image_file:
-            return base64.b64encode(image_file.read()).decode('utf-8')
+def encode_image(image_path):
+     with open(image_path,"rb") as image_file:
+        return base64.b64encode(image_file.read()).decode('utf-8')
         
 
 def text_to_speech(input_text,api_key):
@@ -60,3 +55,46 @@ def text_to_speech(input_text,api_key):
     )
     audio_base64 = model_prediction.outputs[0].data.audio.base64
     return audio_base64
+
+
+
+def main():
+    st.set_page_config(page_title="Interactive Media Creator",layout="wide")
+    st.title("Interactive Media Creator")
+
+
+    with st.sidebar:
+        st.header("Controls")
+        image_description = st.text_area("Description for Image Generation",height=100)
+        generate_image_btn = st.button("Generate Image")
+
+    col1,col2 = st.columns(2)
+
+    with col1 :
+        st.header("Comic Art")
+        if generate_image_btn and image_description:
+            with st.spinner("Generating image ..."):
+                image_path = generate_image(image_description,clarifai_pat)
+                if image_path:
+                    st.image(
+                        image_path,
+                        caption="Generated Comic Image",
+                        use_column_width=True
+                    )
+                    st.success("Image generated image.")
+                else:
+                    st.error("Failed to Generate Image.")
+
+    with col2:
+        st.header("Story")
+        if generate_image_btn and image_description:
+            with st.spinner("Generating Story ..."):
+                base64_image = encode_image(image_path)
+                understood_text = understand_image(base64_image,openai_api_key)
+                audio_base64 = text_to_speech(understood_text,openai_api_key)
+                st.audio(audio_base64,format="audio/mp3")
+                st.success("Audio Generated from image undestanding!")
+
+
+if __name__ == "__main__":
+    main()
