@@ -83,14 +83,8 @@ This application provides a seamless workflow for creating dynamic, interactive 
    2. **Add Your API Keys:**  
       Open the `.env` file in your favorite text editor and add your keys in the following format:
 
-   ````env
+   ```env
    CLARIFAI_PAT=Your_Clarifai_Personal_Access_Token
    OPEN_AI=Your_OpenAI_API_Key
 
-
-       ```bash
-       CLARIFAI_PAT=Your_Clarifai_Personal_Access_Token
-       OPEN_AI=Your_OpenAI_API_Key
-
-
-   ````
+   ```
